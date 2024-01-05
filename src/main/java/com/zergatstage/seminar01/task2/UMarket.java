@@ -7,8 +7,7 @@ import java.util.stream.Collectors;
 
 public class UMarket {
 
-    private void initializeThings()
-    {
+    private void initializeThings() {
         things.add(new Pen());
         things.add(new Notebook());
 
@@ -25,19 +24,18 @@ public class UMarket {
         things.add(new Cheburek());
     }
 
-    public UMarket()
-    {
+    public UMarket() {
         things = new ArrayList<>();
         initializeThings();
     }
 
     /**
      * Распечатать список товаров по типу
+     *
      * @param clazz Описатель типа товара
-     * @param <T> Тип товара
+     * @param <T>   Тип товара
      */
-    public <T extends Thing> void printThings(Class<T> clazz)
-    {
+    public <T extends Thing> void printThings(Class<T> clazz) {
         /*int index = 1;
         for (var thing : things)
         {
@@ -68,8 +66,8 @@ public class UMarket {
                     }
                 });
     }
-    public <T extends Thing> T getThingByIndex(Class<T> clazz, int index)
-    {
+
+    public <T extends Thing> T getThingByIndex(Class<T> clazz, int index) {
         /*int counter = 1;
         for (var thing : things)
         {
@@ -88,8 +86,7 @@ public class UMarket {
                 .orElse(null);
     }
 
-    public <T extends Thing> Collection<T> getThings(Class<T> clazz)
-    {
+    public <T extends Thing> Collection<T> getThings(Class<T> clazz) {
         return things.stream()
                 .filter(clazz::isInstance)
                 .map(clazz::cast)

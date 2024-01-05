@@ -1,0 +1,34 @@
+@startuml
+'https://plantuml.com/class-diagram
+component Goods{
+    interface Thing {
+    getName() : String
+    }
+    interface Food extends Thing {
+    getFats(): boolean
+    getProteins() : boolean
+    getCarbonhydrates(): boolean
+    }
+
+    interface Snack extends Food
+    interface HealthyFood extends Food
+    interface SemiFinishedFood extends Food
+
+    class Crips implements Snack {
+    getFats() : true
+    getProteins(): false
+    getCarbonhydrates(): false
+    }
+}
+component Market{
+    class UMarket {
+        - Collection<Thing> things
+        + printThings(): void
+        + getThingByIndex() : <T extends Thing>
+        + getThings(Class<T> clazz) : Collection <T extends Thing>
+    }
+    class Cart
+    UMarket "1" --* "*"Cart
+
+}
+@enduml
