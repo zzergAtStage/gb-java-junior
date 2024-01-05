@@ -105,7 +105,8 @@ public class Program {
                 scanner.nextLine();
 
                 if (no == 0) {
-                    cart.cardBalancing();
+                    //cart.cardBalancing();
+                    cart.cardBalancingv2();
                     System.out.println("Ваша корзина содержит продукты:");
                     cart.printFoodstuffs();
                     return;
