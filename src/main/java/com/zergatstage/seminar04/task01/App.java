@@ -16,6 +16,7 @@ public class App {
      * с использованием провайдера JDBC.
      */
     private static Random random = new Random();
+    private static final int STUDENTS_LIMIT = 20;
     public static void main(String[] args) {
         String url = "jdbc:mariadb://localhost:3306";
         String user = "root";
@@ -38,20 +39,60 @@ public class App {
             fieldsList.add(new TableConstructorFields("age", "INT", 0, ""));
 
             createTable(connection,fieldsList,"students");
-            //insert data to the database
-            for (int i = 0; i < random.nextInt(12); i++) {
-                insertData(connection,Student.create());
-            }
             //read data
             List<Student> studentList = readStudents(connection);
             System.out.println("Fetched from DB: students = " + studentList.size());
-
+            if (studentList.isEmpty() || studentList.size() < 20) {
+                //insert data to the database
+                for (int i = 0; i < random.nextInt(12); i++) {
+                    insertData(connection, Student.create());
+                }
+            } else if (studentList.size() > STUDENTS_LIMIT ) // delete students
+            {
+                deleteStudentsFromDB(connection, STUDENTS_LIMIT);
+            }
+            studentList = readStudents(connection);
+            int randomStudentId = random.nextInt(studentList.size());
+            //update random student
+            updateStudent(connection, randomStudentId);
 
             connection.close();
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
 
+    }
+
+    /**
+     * Updates a random student with randomly generated values
+     * @param connection Current database connection
+     * @param randomStudentId random student ID
+     * @throws SQLException throws exception up
+     */
+    private static void updateStudent(Connection connection, int randomStudentId) throws SQLException{
+        String updateSQL = "UPDATE students SET name=?, age=? WHERE id=?;";
+        try(PreparedStatement statement = connection.prepareStatement(updateSQL)){
+            Student randomNewStudent = Student.create();
+            statement.setString(1,randomNewStudent.getName());
+            statement.setInt(2, randomNewStudent.getAge());
+            statement.setInt(3, randomStudentId);
+            int i = statement.executeUpdate();
+            System.out.println("Student with id = " + randomStudentId + ((i > 0) ? " successfully updated" : " ignored"));
+        }
+    }
+
+    /**
+     * Delete some students from database, if limit is exceeded
+     * @param connection Current database connection
+     * @param studentsLimit students limit
+     * @throws SQLException throws exception up
+     */
+    private static void deleteStudentsFromDB(Connection connection, int studentsLimit) throws SQLException {
+        String deleteSQL = "DELETE FROM students WHERE id > ?";
+        try(PreparedStatement statement = connection.prepareStatement(deleteSQL)){
+            statement.setInt(1,studentsLimit);
+            statement.executeQuery();
+        }
     }
 
     /**
