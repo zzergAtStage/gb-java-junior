@@ -16,7 +16,7 @@ class AppTest {
     }
     @org.junit.jupiter.api.Test
     void getAverageEvens() {
-        OptionalDouble newList = App.getAverageEvens(listNums);
+        OptionalDouble newList = com.zergatstage.seminar01.App.getAverageEvens(listNums);
         assertTrue(newList.isPresent());
         assertEquals(newList.getAsDouble(), 604.5d , 0.00000001);
     }

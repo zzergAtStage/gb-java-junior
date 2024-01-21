@@ -1,10 +1,14 @@
 package com.zergatstage.seminar04.task01;
 
+import jakarta.persistence.*;
+
 import java.util.Random;
 
 /**
  * Random objects class. Can create a predefined object or create a random object
  */
+@Entity
+@Table(name = "students")
 public class Student {
 
     //factory attributes
@@ -19,18 +23,23 @@ public class Student {
     private static final Random random = new Random();
 
     //class attributes
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-    private String Name;
+    private String name;
     private int age;
+
+    public Student() {
+    }
 
     public Student(int id, String name, int age) {
         this.id = id;
-        Name = name;
+        this.name = name;
         this.age = age;
     }
 
     public Student(String name, int age) {
-        Name = name;
+        this.name = name;
         this.age = age;
     }
 
@@ -45,11 +54,11 @@ public class Student {
     }
 
     public String getName() {
-        return Name;
+        return name;
     }
 
     public void setName(String name) {
-        Name = name;
+        this.name = name;
     }
 
     public int getAge() {
@@ -58,5 +67,14 @@ public class Student {
 
     public void setAge(int age) {
         this.age = age;
+    }
+
+    @Override
+    public String toString() {
+        return "Student{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", age=" + age +
+                '}';
     }
 }
