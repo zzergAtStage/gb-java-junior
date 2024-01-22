@@ -1,0 +1,15 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="S04-Demo - JDBC" type="Application" factoryName="Application">
+    <option name="MAIN_CLASS_NAME" value="com.zergatstage.seminar04.task01.App" />
+    <module name="gb-java-junior" />
+    <extension name="coverage">
+      <pattern>
+        <option name="PATTERN" value="com.zergatstage.seminar04.*" />
+        <option name="ENABLED" value="true" />
+      </pattern>
+    </extension>
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
