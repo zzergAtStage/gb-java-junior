@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="chat-server" type="Application" factoryName="Application">
+  <configuration default="false" name="!chat-server" type="Application" factoryName="Application">
     <option name="MAIN_CLASS_NAME" value="chat.server.Program" />
     <module name="chat-server" />
     <extension name="coverage">

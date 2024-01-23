@@ -1,5 +1,6 @@
 package chat.client.chatGUI;
 
+import chat.client.Client;
 import chat.client.model.*;
 import chat.client.services.ChatFileTransport;
 
@@ -9,12 +10,17 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.UnknownHostException;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class ChatWindow extends JFrame implements SocketThreadListener {
+public class ChatWindow extends JFrame {
     public static final int WINDOW_HIGH = 555;
     public static final int WINDOW_WIDTH = 507;
     public static final int WINDOW_POSX = 200;
@@ -32,6 +38,8 @@ public class ChatWindow extends JFrame implements SocketThreadListener {
     private JMenuItem userLogOff;
     private JMenuItem exitProgram;
 
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM-dd-yyyy : HH:mm:ss");
+    private Client client;
     public ChatWindow() {
 
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
@@ -74,8 +82,7 @@ public class ChatWindow extends JFrame implements SocketThreadListener {
             @Override
             public void keyPressed(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-                    sendMessage(messageBox.getText());
-                    messageBox.setText("");
+                    sendMessageFromBox(messageBox);
                 }
             }
 
@@ -86,8 +93,7 @@ public class ChatWindow extends JFrame implements SocketThreadListener {
         //send button
         JButton sendBtn = new JButton("Send");
         sendBtn.addActionListener(e -> {
-            sendMessage(messageBox.getText());
-            messageBox.setText("");
+            sendMessageFromBox(messageBox);
         });
         constr = getGridBagConstraints(5, 2, 1, 1,
                 GridBagConstraints.LAST_LINE_END, GridBagConstraints.NONE);
@@ -105,11 +111,12 @@ public class ChatWindow extends JFrame implements SocketThreadListener {
             }
         });
         setVisible(true);
+        client.listenForMessages();
     }
 
     public static void main(String[] args) {
         new ChatWindow();
-    }
+}
 
     private static GridBagConstraints getGridBagConstraints(int gridX, int gridY, int gridWidth, int gridHeight, int anchor, int fill) {
         GridBagConstraints constr = new GridBagConstraints();
@@ -124,6 +131,11 @@ public class ChatWindow extends JFrame implements SocketThreadListener {
         ;
         constr.anchor = anchor;
         return constr;
+    }
+
+    private void sendMessageFromBox(JTextField messageBox) {
+        sendMessage(messageBox.getText());
+        messageBox.setText("");
     }
 
     private void initChat() {
@@ -197,18 +209,44 @@ public class ChatWindow extends JFrame implements SocketThreadListener {
         currentUser = new User("Some", "Somevich", 0);
         connect();
     }
-    private void connect(){
-        SocketThread socketThread = new SocketThread(this);
+
+    private void connect() {
+        try {
+            InetAddress address = InetAddress.getLocalHost();
+            Socket socket = new Socket(address, 4500);
+            client = new Client(socket, "Client");
+            //client.sendMessage();
+        } catch (UnknownHostException ex) {
+            ex.printStackTrace();
+        } catch (IOException e) {
+            handleConnectionError(e);
+        }
+    }
+    private static final int RETRY_DELAY_SECONDS = 15;
+    private void handleConnectionError(Exception e) {
+        showMessageDialog("Connection Error", e.getMessage() + " Please try again in 15 seconds.");
+
+        try {
+            Thread.sleep(RETRY_DELAY_SECONDS * 1000); // Convert seconds to milliseconds
+        } catch (InterruptedException ex) {
+            Thread.currentThread().interrupt();
+        }
+        // Retry the connection
+        connect();
     }
 
+    private void showMessageDialog(String title, String message) {
+        JOptionPane.showMessageDialog(null, message, title, JOptionPane.ERROR_MESSAGE);
+    }
     public void sendMessage(String messageBody) {
         if (messageBody.isBlank()) return;
-        String time = LocalDateTime.now().toString();
+        String time = LocalDateTime.now().format(formatter);
         Message message = new Message(String.valueOf(currentUser.getUserId()), "AtSome:"
                 , time, messageBody);
 
         textBox.append("\n" + time + "@:" + message.getMessageBody() + "\n");
         chatEntity.addMessage(message);
+        client.sendMessage(message);
         repaint();
     }
 
@@ -220,25 +258,5 @@ public class ChatWindow extends JFrame implements SocketThreadListener {
                 .map(message -> message.getMessageSendTime() + "@:" + message.getMessageBody())
                 .collect(Collectors.joining("\n"))
         );
-    }
-
-    @Override
-    public void onSocketStart(Socket s) {
-        textBox.append("Started" + "\n");
-    }
-
-    @Override
-    public void onSocketStop() {
-        textBox.append("Stopped" + "\n");
-    }
-
-    @Override
-    public void onSocketReady(Socket socket) {
-        textBox.append("Ready" + "\n");
-    }
-
-    @Override
-    public void onReceivedString(Socket s, String message) {
-        textBox.append(message + "\n");
     }
 }
