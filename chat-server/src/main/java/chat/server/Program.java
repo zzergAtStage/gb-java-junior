@@ -11,10 +11,7 @@ public class Program {
         System.out.println("Server...");
 
         try{
-            ServerSocket socket = new ServerSocket(4500);
-            //TODO> ChatServer server = new ChatServer()
-            Server server = new Server(socket);
-        server.runServer();
+            new Server(4505).run();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

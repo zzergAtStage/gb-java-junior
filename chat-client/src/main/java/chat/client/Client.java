@@ -9,7 +9,6 @@ import java.net.Socket;
 import java.util.Scanner;
 
 public class Client {
-    private static int counter;
     private final Socket socket;
     @Getter
     private final String name;
@@ -22,9 +21,9 @@ public class Client {
 
 
     public Client(Socket socket, String name) {
-        counter++;
+
         this.socket = socket;
-        this.name = name + "_" + counter;
+        this.name = name ;
         try {
             bufferedWriter = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
             bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
