@@ -2,17 +2,20 @@ package chat.server.model;
 
 import chat.server.ChatGUI.ServerControl;
 
+
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Server {
     private final ServerSocket serverSocket;
-
     public Server(ServerSocket socket) {
         this.serverSocket = socket;
     }
     public void runServer(){
+        //up the window. May be use invokeLater?
         ServerControl serverWindows = new ServerControl();
         try {
             while (!serverSocket.isClosed()) {

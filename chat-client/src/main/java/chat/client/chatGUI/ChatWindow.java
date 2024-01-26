@@ -17,6 +17,7 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -111,7 +112,7 @@ public class ChatWindow extends JFrame {
             }
         });
         setVisible(true);
-        client.listenForMessages();
+        client.listenForMessages(this);
     }
 
     public static void main(String[] args) {
@@ -128,7 +129,6 @@ public class ChatWindow extends JFrame {
         constr.fill = fill;
         constr.weightx = (fill == GridBagConstraints.BOTH) ? 1.0 : 0.0;
         constr.weighty = (fill == GridBagConstraints.BOTH) ? 1.0 : 0.0;
-        ;
         constr.anchor = anchor;
         return constr;
     }
@@ -140,14 +140,10 @@ public class ChatWindow extends JFrame {
 
     private void initChat() {
         chatEntity = new Chat();
-        for (int i = 0; i < 100; i = i + 3) {
-            User tempUser = new User("User" + i, "Last" + i, i);
-            chatEntity.addUserToChat(tempUser);
-        }
         userLogin(this);
         // if (application.tunes("Use_File")) {
         //filelog
-        transport = (ChatTransport) new ChatFileTransport();
+        transport =  new ChatFileTransport();
         //} else { some DB init transport}
     }
 
@@ -156,6 +152,7 @@ public class ChatWindow extends JFrame {
                 GridBagConstraints.FIRST_LINE_START, GridBagConstraints.BOTH);
         JList<String> listUser = new JList<>();
         //listUser.setListData(new String[]{"User1", "User2", "User3", "User4", "User5"});
+        //TODO: replace with retrieving list from server
         listUser.setListData(chatEntity.getActiveUsers().stream()
                 .map(user -> user.getUserName() + " - " + user.getUserId())
                 .toArray(String[]::new));
@@ -214,8 +211,8 @@ public class ChatWindow extends JFrame {
         try {
             InetAddress address = InetAddress.getLocalHost();
             Socket socket = new Socket(address, 4500);
+            //TODO: add client random identification
             client = new Client(socket, "Client");
-            //client.sendMessage();
         } catch (UnknownHostException ex) {
             ex.printStackTrace();
         } catch (IOException e) {
@@ -225,7 +222,6 @@ public class ChatWindow extends JFrame {
     private static final int RETRY_DELAY_SECONDS = 15;
     private void handleConnectionError(Exception e) {
         showMessageDialog("Connection Error", e.getMessage() + " Please try again in 15 seconds.");
-
         try {
             Thread.sleep(RETRY_DELAY_SECONDS * 1000); // Convert seconds to milliseconds
         } catch (InterruptedException ex) {
@@ -258,5 +254,13 @@ public class ChatWindow extends JFrame {
                 .map(message -> message.getMessageSendTime() + "@:" + message.getMessageBody())
                 .collect(Collectors.joining("\n"))
         );
+    }
+
+    public void putMessage(String message) {
+        if (!message.isBlank()) {
+            chatEntity.addMessage(new Message(null,null,new Date().toString(),message));}
+        else {
+            System.out.println("Message is empty?");
+        }
     }
 }

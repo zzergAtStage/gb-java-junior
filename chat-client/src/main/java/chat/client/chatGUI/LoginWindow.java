@@ -42,31 +42,36 @@ public class LoginWindow extends JDialog {
         add(proceedLogin);
         add(cancelLogin);
         proceedLogin.addActionListener(e -> {
-            String message = loginUser(serverIP.getText(), userId.getText(), userPassword.getPassword());
-            String dialogHeader = "Login error!";
-            int jOptionPaneTypeInfo = JOptionPane.ERROR_MESSAGE;
-            if (message.isBlank() || message.equals("Go ahead!")) { //just to demonstrate functionality
-                dialogHeader = "Ok!";
-                jOptionPaneTypeInfo = JOptionPane.INFORMATION_MESSAGE;
-                c.currentUser = new User("SomeStubUser", "Empty"
-                        , Integer.parseInt(userId.getText()));
-                dispose();
+
+            String message = loginUser(c, serverIP.getText(), userId.getText(), userPassword.getPassword());
+            while (c.currentUser != null && !c.currentUser.isOnline()) {
+                String dialogHeader = "Login error!";
+                int jOptionPaneTypeInfo = JOptionPane.ERROR_MESSAGE;
+                if (message.isBlank() || message.equals("Go ahead!")) { //just to demonstrate functionality
+                    dialogHeader = "Ok!";
+                    jOptionPaneTypeInfo = JOptionPane.INFORMATION_MESSAGE;
+                    c.currentUser.setOnline(true);
+                    dispose();
+                }
+                JOptionPane.showMessageDialog(LoginWindow.this, message, dialogHeader, jOptionPaneTypeInfo);
             }
-            JOptionPane.showMessageDialog(LoginWindow.this, message, dialogHeader, jOptionPaneTypeInfo);
         });
         cancelLogin.addActionListener(e -> {
             dispose();
             c.currentUser = null;
+            System.exit(0);
         });
         pack();
         setVisible(true);
     }
 
-    private String loginUser(String serverId, String userId, char[] password) {
+    private String loginUser( ChatWindow c, String serverId, String userId, char[] password) {
         //TODO create interface to work with password (hash) and server answer
         try {
-            UserCredentials user = new UserCredentials(Integer.parseInt(userId), Arrays.hashCode(password));
-            return ServerAuthorizationStub.checkUserAuthority(user);
+            c.currentUser = new User("SomeStubUser", "Empty"
+                    , Integer.parseInt(userId));
+            UserCredentials userCredentials = new UserCredentials(Integer.parseInt(userId), Arrays.hashCode(password));
+            return ServerAuthorizationStub.checkUserAuthority(userCredentials);
         } catch (NumberFormatException e) {
             return "Wrong input format. Try again!";
         }

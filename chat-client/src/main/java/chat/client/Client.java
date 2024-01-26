@@ -1,5 +1,6 @@
 package chat.client;
 
+import chat.client.chatGUI.ChatWindow;
 import chat.client.model.Message;
 import lombok.Getter;
 
@@ -52,15 +53,17 @@ public class Client {
         }
     }
 
-    public void listenForMessages(){
+    public void listenForMessages(ChatWindow jchat){
         new Thread(new Runnable() {
             @Override
             public void run() {
                 String message;
                 while (socket.isConnected()){
                     try {
-                        message = bufferedReader.readLine();
-                        System.out.println(message);
+                        while ((message = bufferedReader.readLine()) != null){
+                            System.out.println(message);
+                            jchat.putMessage(message);
+                        }
                     }
                     catch (IOException e){
                         closeEverything(socket, bufferedReader, bufferedWriter);
@@ -84,6 +87,7 @@ public class Client {
 
         }
         catch (IOException e){
+            e.printStackTrace();
             closeEverything(socket, bufferedReader, bufferedWriter);
         }
 

@@ -3,12 +3,13 @@ package chat.client.model;
 import lombok.Getter;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Getter
 public class Chat {
-    private ArrayList<User> activeUsers;
+    private Collection<User> activeUsers;
     //as the key, I will keep userId - to realize feature - U2U conversation
     private List<Message> messages;
     private User currentUser;
@@ -40,12 +41,6 @@ public class Chat {
         this.currentUser = currentUser;
     }
 
-    public void removeUserFromChat(User user){
-        for (User u :
-                activeUsers) {
-            if (user.equals(u)) activeUsers.remove(user);
-        }
-    }
     public void restoreChat(List<Message> messageList){
         this.messages = messageList;
     }
